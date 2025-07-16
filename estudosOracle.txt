@@ -382,13 +382,444 @@ Aqui estão os diferentes tipos de JOINS em SQL:
   * FULL OUTER JOIN: retorna todos os registros quando houver uma correspondência na tabela à esquerda ou à direita
 
 *************************************************************************************************************************************************  
-/// Consulta para verificar todas as tabelas
-
-SELECT OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH
-FROM all_tab_columns
-
-
+*** Consulta para verificar todas as tabelas				***  Consulta para verificar tipos 	  			      ***
+***									***								      ***
+*** SELECT OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH	***  SELECT OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH    ***
+*** FROM all_tab_columns						***  FROM all_tab_columns					      ***
+***									***  WHERE DATA_TYPE = 'VARCHAR'				      ***
+***									***								      ***
 *************************************************************************************************************************************************
+
+
+=================================================================================================================================================
+
+AULA 31 - SUBQUERYS
+
+=================================================================================================================================================
+
+É uma instrução SELECT que está condicionada dentro de outra instrução SQL.
+
+Existem, no entanto, 4 maneiras de introduzirmos uma subconsulta em uma instrução do tipo SELECT:
+	
+	* Através do WHERE como sendo uma condição de pesquisa
+	* Em uma cláusula HAVING como condição de pesquisa
+	* na cláusula FROM como uma especificação de tabela
+	* na cláusula SELECT como uma especificação de coluna   
+
+
+=================================================================================================================================================
+
+*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*  FUNÇÕES PADRÕES  */*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
+
+=================================================================================================================================================
+
+AULA 33 e 34 - FUNÇÕES DE AGREGAÇÃO
+
+=================================================================================================================================================
+
+Executam um cálculo em um conjunto de valores e retornam um único valor.
+Com exceção de COUNT, as funções de agregação ignorma valores nulos.
+A funções de agregação normalmente são usadas com a cláusula GROUP BY da instrução SELECT
+As funções de agregação podem ser usadas como expressões apenas nos seguintes casos:
+  * A lista de seleção de uma instrução select (uma subconsutla ou uma consulta externa)
+  * Uma cláusula HAVING.
+
+
+AVG - Retorna a média dos valores em um grupo. Valores nulos são ignorados
+MIN - Retorna o valor mínimo da expressão. Pode ser seguido pela cláusula OVER
+MAX - Retorna o valor máximo na expressão
+SUM - Retorna a soma de todos os valores ou somente os valores DISTINCT na expressão. 
+      SUM pode ser usado exclusivamente com colunas numéricas. Valores nulos são ignorados 
+COUNT - Retorna o número de itens de um grupo
+STDDEV - Retorna o desvio padrão estatístico de todos os valores da expressão especificada 
+VARIANCE - Determina a variância de N,ignorando valores nulos  
+
+-- consulta que traz o estado, 
+-- sua média populacional agrupado por estado, 
+-- população mínima, população máxima, 
+-- soma da população agrupado por estado 
+-- e a quantidade de cidades tendo em vista a contagem de linhas agrupado por estado e ano 
+-- (ano nesse caso auxilia a ter uma exatidão pois se não separasse por ano traria o registro de todos anos)  
+
+SELECT 
+	a.estado,
+       	AVG(a.populacao) as media_pop,
+	MIN(a.populacao) as minimo_pop,
+	MAX(a.populacao) as maximo_pop,
+	SUM(a.populacao) as total_pop,
+	COUNT(*) as qtd_cidades
+FROM senso a 
+WHERE a.ano = '2014'
+GROUP BY a.estado
+ORDER BY 2 DESC;
+
+-- consulta mais aprimorada em relação a outra que só demonstrava números
+-- nela é possível verificar o nome do estado e do município com a população máxima
+
+SELECT a.estado, a.nome_mun, a.populacao
+FROM
+	(SELECT b.estado, MAX(b.populacao) as populacao from senso b
+	 WHERE b.ano = '2014'
+	 GROUP BY b.estado
+	) b
+JOIN senso a
+ON a.estado = b.estado
+AND a.populacao = b.populacao
+WHERE a.ano = '2014'
+ORDER BY a.populacao DESC; 
+
+
+-- COMPARANDO CRESCIMENTO pop DA CIDADES ref anos  2010 a 2014
+-- select cod_uf,cod_mun,cod_uf+cod_mun as concatenado from cidades
+-- usando exemplo
+SELECT a.nome_mun,
+       a.populacao as senso_2010,
+	   b.populacao as senso_2014,
+       (100/a.populacao)*(b.populacao)-100 as percentual
+from senso a 
+inner join senso b 
+on a.cod_mun=b.cod_mun
+where a.ano='2010' 
+and b.ano='2014';
+
+-- VAR_POP Retorna a variância estatística de todos os valores da expressão especificada
+SELECT VAR_POP(POPULACAO) FROM senso
+where ano='2014';
+
+-- VAR_SAMP Retorna a variância estatística para o preenchimento 
+-- de todos os valores da expressão especificada.
+SELECT VAR_SAMP(POPULACAO) FROM senso;
+
+
+=================================================================================================================================================
+
+AULA 39 - FUNÇÕES MATEMÁTICAS
+
+=================================================================================================================================================
+
+	* ABS - Uma função matemática que retorna o valor absoluto (positivo) da expressão numérica especificada
+	* DBMS_RANDOM - Retorna um valor float pseudoaleatório de 0 a 1, exclusivo
+	* ROUND - Retorna um valor numérico, arredondado, para o comprimento ou precisão especificados
+	* TRUNC - Trunca as casas decimais de uma expressão
+	* SQRT - Retorna a raiz quadrada de uma expressão
+	* SIGN - Retorno -1 para negativo, 0 neutro, 1 para positivo com o valor da expressão
+	* POWER - Eleva à potência de N o valor. Pode ser nagativo
+	* MOD - Retorna o valor MOD, a sobra de uma expressão dividida
+	* EXP - Devolve o valor 'e' elevado a N
+
+=================================================================================================================================================
+
+AULA 40 - FUNÇÕES DE CRIPTOGRAFIA
+
+=================================================================================================================================================
+
+	* RAWTOHEX - Converte os caracteres para hexadecimal
+	* DBMS_OBFUSCATION_TOOLKIT - Esse pacote disponibiliza o método MD5 e outros 
+	* UTL_RAW - Nesse ponto há manipulação dos dados, tendo como foco principal: a conversão dos tipos
+	
+
+SET SERVEROUTPUT ON
+
+
+DECLARE
+     v_str VARCHAR2(100);
+     v_frase VARCHAR2(100);
+    BEGIN
+     -- atribuindo valor
+     v_frase:='Utilidades Oracle';
+      --generate encoded value
+      --1 PARAM BUF VALOR
+      --2 PARAM ENCODE_CHARSET SAO TIPO WE8ISO8859P1 - AL32UTF8
+      --3 PARAM ENCODING - BASE64
+      v_str := utl_encode.text_encode(v_frase,'WE8ISO8859P1', UTL_ENCODE.BASE64);
+      --imprimi valor
+      dbms_output.put_line(v_str);
+      
+      --take the encoded value and decode it
+      v_str := utl_encode.text_decode(v_str,'WE8ISO8859P1', UTL_ENCODE.BASE64);
+      --imprimi valor
+     dbms_output.put_line(v_str);
+     
+   END;
+
+
+=================================================================================================================================================
+
+AULA 41 - FUNÇÕES DE LIMITE
+
+=================================================================================================================================================
+
+	* ROWNUM - A cláusula SELECT ... LIMIT é útil em grandes tabelas com milhares de registros 
+	
+
+
+=================================================================================================================================================
+
+AULA 42 - FUNÇÕES DE CONVERSÃO
+
+=================================================================================================================================================
+
+	* CAST - Converte expressão de um tipo de dados em outro
+	* TO_CHAR(data) - Converte data em string
+	* TO_DATE(string) - Converte string em data 
+	* NVL() - Trata valor nulo 
+
+
+=================================================================================================================================================
+
+AULA 43 - FUNÇÕES DE DATAS
+
+=================================================================================================================================================	
+
+
+	* SYSDATE - Retorna a data e hora atual do servidor 
+	* ADD_MONTHS - Adiciona N meses de calendário à data. O número N tem que ser inteiro e pode ser negativo
+	* MONTHS_BETWEEN - Determina o número de meses entre data1 e data2. O resultado pode ser positivo ou negativo.
+	* LAST_DAY - Devolve o último dia do mês de data1 
+	* NEXT_DAY - Devolve a data do próximo dia da semana especificado por C e A seguido da data1
+
+Utilização de operadores aritméticos
+
+	* DATE + NUMBER - Adiciona um número de dias à data, retornando uma data
+	* DATE - NUMBER - Subtrai  um número de dias à data, retornando uma data
+	* DATE - DATE - Retorna um número de dias 
+	* DATE + NUMBER/24 - Adiciona um número de horas à data, retornando uma data
+ 
+
+
+=================================================================================================================================================
+
+AULA 45 - FUNÇÕES DE SISTEMA
+
+=================================================================================================================================================	
+
+
+	* USER - Mostra o nome do utilizador Oracle que abriu sessão
+	* UID - Mostra o número que a base de dados atribuiu ao uilizador.
+	* USERENV(arg) - Envolve dados da sessão atual, os valores de argumento podem ser vários
+
+
+=================================================================================================================================================
+
+AULA 46 - VIEWS
+
+=================================================================================================================================================	
+
+	A view pode ser definida como uma tabela virtual composta por linahs e colunas de dados vindos de tabelas relacionadas em uma query
+	As linhas e colunas da view são geradas dinamicamente no momento em que é feita uma referência a ela.
+	As views podem vir de  uma ou mais tabelas, ou até memso de outras views.
+
+	VANTAGENS:
+
+	* Reutilização
+	* Segurança
+	* Simplificação do Código
+
+
+=================================================================================================================================================
+
+AULA 47 - TEMP TABLES
+
+=================================================================================================================================================
+
+	TEMP TABLE (TEMPORARY) - indica que a tabela criada será temporária, 
+	o que significa que ela expira assim que a sua sessão ou transação no Oracle terminar.
+	Possui vida útil de uma sessão ou transação.
+
+
+=================================================================================================================================================
+
+AULA 49 - PL/SQL
+
+=================================================================================================================================================
+
+	PL/SQL é uma linguagem de progamação procedural da Oracle que estende a liguagem SQL.
+	
+	Utilizado em:
+	* Bloco Anônimo 
+	* Procedures
+	* Triggers
+	* Package 
+	* Function 
+	* Types
+	
+
+	***ESTRUTURA DE BLOCO PL/SQL***
+	
+	DECLARE - OPCIONAL
+	-- Variáveis, cursores, exceções definidas pelo usuário
+
+	BEGIN - Obrigatório
+	-- Instruções SQL
+	-- Instruções PL/SQL
+	EXCEPTION - Opcional
+	--Ações a serem desempenhadas quando ocorrem erros
+	END; - Obrigatório
+
+	
+	Toda unidade PL/SQL compreende um ou mais blocos. 
+	Onde esses blocos podem ser inteiramente separados ou aninhados um dentro do outro. 
+	Existem 3 tipos de blocos:
+		
+		* Anônimo
+			BEGIN
+			- statements
+			[EXCEPTION]
+			END;
+		* Procedimento
+			PROCEDURE name
+			IS
+			BEGIN
+			- statements
+			[EXCEPTION]
+			END;
+		* Função
+			FUNCTION name
+			RETURN datatype	
+			IS
+			BEGIN
+			- statements
+			RETURN value;
+			[EXCEPTION]
+			END;
+
+	
+=================================================================================================================================================
+
+AULA 50 - CONJUNTO DE CARACTERES
+
+=================================================================================================================================================	
+
+	Letras, Dígitos Símbolos
+	
+	PL/SQL é case-insensetive (compilador enxerga tudo como uppercase) e aceita caracteres A-Z, a-z, 0-9, whitespace e símbolos
+
+	; = termina os statements e declarações
+	% = inicador de atributo
+	@ = indicador de localização
+	<< e >> = delimitadores de labels
+	:= = é indicador de atribuião de valores à variáveis, etc
+	=> = é operador de associação para notação posicional
+	.. (dois pontos) = é operador de range
+	& = abre um prompt para digitar 
+
+  
+=================================================================================================================================================
+
+AULA 51 - VARIAVEIS
+
+=================================================================================================================================================
+
+
+	Para inicializar uma variável pode utiliza o operador := ou a palavra chave DEFAULT
+
+	
+
+=================================================================================================================================================
+
+AULA 52 - ATRIBUTOS TYPEE E ROTYPE
+
+=================================================================================================================================================
+
+	
+	Para evitar erros de tipos, podemos utilizar o atributo %TYPE para declarar 
+	a variável de acordo com a declaração de outra variável ou coluna da tabela  
+	O atributo %TYPE é mais utilizado quando o valor armazenado na variável for 
+	um valor derivado de uma oluna de uma tabelado banco.
+
+Exemplo: 
+	
+	DECLARE
+   		v_id hr.employees.employee_id%TYPE; -- CAMPO DA TABELA
+   		v_emp hr.employees%ROWTYPE;         -- LINHA TODA DA TABELA 
+
+
+
+=================================================================================================================================================
+
+AULA 53 - TIPOS DE REGISTRO
+
+=================================================================================================================================================
+
+	Um registro é uma coleção de valores individuais que estão relacionados de alguma forma. 
+	Com frequência os registros são usados para representar uma linha de uma tabela, e assim 	
+	o relacionamento se baseia no fato de que todos os valores vêm da mesma linha. Cada campo
+	de um registro é exclusivo e tem seus próprios valores. Um registro como um todo não tem valor
+	Muito semelhante a declaração de um objeto em linguagens orientadas a objetos.
+
+=================================================================================================================================================
+
+AULA 54 - ESCOPOS DE VARIÁVEIS
+
+=================================================================================================================================================
+
+
+	Escopo de uma variável é a região de um programa no qual podemos referenciar a variável. 		
+	Variáveis declaradas em blocos PLSQL são consideradas local para o bloco onde está declarado e 
+	global para todos seus sub-blocos. Se uma variável é redeclarada em um sub-bloco, ambos 
+	permanecem no escopo. 
+
+	Não podemos declarar uma variável duas vezes no mesmo bloco, mas podemos declarar a mesma 
+	variável em dois blocos diferentes. As duas variáveis são distintas, ou seja, qualquer
+	mudança em uma, não irá afetar a outra.
+	
+	
+=================================================================================================================================================
+
+AULA 55 - IDENTIFICADORES
+
+=================================================================================================================================================
+
+	Um identificador é simplesmente um nome para um objeto PLSQL, ou uma palavra reservada. 
+	As regras para os identificadores são as seguintes: 
+	
+	* Máximo de 30 caracteres
+	* Devem começar com uma letra	
+	* Podem incluir $, _ e # 
+	* Não podem conter whitespace
+
+=================================================================================================================================================
+
+AULA 59 - GOTO
+
+=================================================================================================================================================
+
+	Com a declaração GOTO, o controle é transferido para a label incondicionalmente, onde temos também que o label
+	deve ser único dentro de um escopo e deve ser posto antes de uma declaração executável ou mesmo de um bloco PLSQL
+
+	Sintaxe:
+		GOTO Label;
+
+	O label tem por finalidade identificar tanto um bloco quanto uma declaração. 
+	Caso o nosso label não esteja dentro do bloco no qual estejamos trabalhando, 
+	a declaração GOTO irá transferir o controle para o primeiro bloco que contiver 
+	na declaração da label.
+	
+	
+=================================================================================================================================================
+
+AULA 60 - LOOP FOR 
+
+=================================================================================================================================================	
+
+
+	[label] FOR index IN [ REVERSE ] menor_indice .. indice_maximo LOOP
+		Declarações
+	END LOOP [label];
+
+	Index: nome dado a variável declarada implicitamente que é utilizada localmente na declaração do laço FOR 
+	
+	menor_indice (limite inferior) e maior_indice (limit superior): valores inteiros que são avaliados dentro de um laço
+	Os valores que são postos estarão dentro desse limite  são temporários 
+		
+	Label: identifica uma declaração dentro do laço FOR, como instruções CONTINUE e EXIT, que podem referenciar a label.
+	A utilização destes normalmente melhoram a legibilidade do código.
+
+
+	
+
+
+	
 
 
 
