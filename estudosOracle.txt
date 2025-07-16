@@ -816,10 +816,25 @@ AULA 60 - LOOP FOR
 	A utilização destes normalmente melhoram a legibilidade do código.
 
 
-	
+=================================================================================================================================================
+
+AULA 61 - LOOP WHILE
+
+=================================================================================================================================================	
+ 
+	WHILE condition 
+	  LOOP
+	    {...statements...}	
+	  END LOOP;
 
 
+	A palavra "condition", que no caso é a condição que será testada a cada iteraão do loop. 
+	Caso essa condição seja avaliada como TRUE, o corpo do loop será executado; caso esta 
+	condição seja FALSE, o loop será então encerrado.
 	
+	O "statement" são as declarações do código que estaremos executando a cada passagem do loop. 	
+	Como podemos perceber, a condição é realizada antes de entrarmos no loop, o que, em caso de ser	
+	FALSE, o código pode não ser executado nenhuma vez.
 
 
 
