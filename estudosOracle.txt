@@ -1,0 +1,403 @@
+=================================================================================================================================================
+
+AULA 05 
+
+=================================================================================================================================================
+
+ORACLE DATABASE -> DATAFILE -> TABLESPACE
+
+-- criando tablespace
+
+CREATE TABLESPACE curso 
+	DATAFILE 	
+	'C:\oraclexe\app\oracle\oradata\XE\curso.dbf' -- indicação do caminho onde o tablespace será criado
+		size 100m autoextend on next 50m maxsize 500m
+	online
+	permanente
+	extend management local autollocate
+	segment space management auto;
+
+-- criando user
+
+CREATE USER aluno -- criação do usuário
+	IDENTIFIED BY aluno -- senha 
+	DEFAULT TABLESPACE curso -- direcionamento do tablespace
+	TEMPORARY TABLESPACE TEMP; -- 
+ 
+-- permissão para aluno
+
+GRANT CREATE SESSION, CONNECT, RESOURCE TO aluno; -- permissões de conexões
+
+ALTER USER ALUNO QUOTA UNLIMITED ON curso; -- alter para não ter limite no tablespace curso
+
+-- deletar user
+DROP USER aluno;
+
+-- deletar tablespace 
+DROP TABLESPACE curso
+	INCLUDING CONTENTS AND DATAFILES 
+		CASCADE CONTRAINTS;	
+
+=================================================================================================================================================
+
+AULA 11 - CARACTERISTICAS DE BANCO DE DADOS RELACIONAL
+
+=================================================================================================================================================
+
+
+Características do DB Relacional 
+
+- É a arquitetura na qual os dados são armazenados em tabelas que se relacionam entre si.
+
+	* Permite controle de redundância de dados;
+	* Garantia de integridade dos dados;
+	* Garantia de privacidade;
+	* Otimização de espaço de Armazenamento;
+	* Controle automático de relacionamento entre tabelas de dados;
+	* Performance de acesso a informação;
+	* Cada tabela (relação) tem seu nome diferente das demais na mesma base de dados;
+	* Cada coluna tem seu nome diferente das demais na mesma tabela;
+	* Colunas contém os atributos (todos do mesmo domínio);
+	* Linhas contém informações de um registro (uma tupla) da tabela;
+	* Cada célula pode conter no máximo um item de dado;
+	* Ordem das linhas é irrelevante;
+	* Ordem das colunas é irrelevante;
+	* Nunca temos duas linhas iguais;
+	* Chave primária;
+
+
+=================================================================================================================================================
+
+AULA 16 - ACID E CRUD
+
+=================================================================================================================================================
+
+
+ACID: (Propriedades das transações)
+	
+	* Atomicidade: uma transação é uma unidade atômica de processamento; ou ela é executada na sua totalidade, ou então nada é executado.
+	* Consistência: a execução de uma transação deve manter a consistência de um banco de dados.
+	* Isolamento: uma transação não deve tornar visível para outras transações as modificações feitas em um banco de dados até que ela seja encerrada com sucesso.
+	* Durabilidade: uma vez executada com sucesso, as alterações feitas por uma transação deve, persistir, mesmo se houver subsequentes no sistema.
+
+
+CRUD 
+	* CREATE (CRIAR);
+	* READ (SELECT);
+	* UPDATE (ATUALIZAR);
+	* DELETE (APAGAR);
+
+=================================================================================================================================================
+
+AULA 17 - CONSTRAINTS
+
+=================================================================================================================================================
+
+São utilizadas para especificar regras de armazenamento de dados nas tabelas e garantir integridade.
+
+	* NOT NULL: Garante que uma coluna não recebera valor NULL;
+	* UNIQUE: Garante que os valores em uma coluna sejam diferentes.
+	* PRIMARY KEY: Chave única, linha exclusiva 
+	* FOREIGN KEY: Referencia o valor de um campo em determinada linha a outra tabela 
+	* DEFAULT: Define um valor padrão para uma coluna quando nenhum valor é especificado 
+	* INDEX: Usado para criar e recuperar dados do banco de dados, melhor performance
+
+
+=================================================================================================================================================
+
+AULA 18 - OPERADORES DE COMPARAÇÃO 
+
+=================================================================================================================================================
+
+*** Permissões para select
+
+GRANT SELECT ON HR.COUNTRIES TO ALUNO WITH GRANT OPTION;
+GRANT SELECT ON HR.DEPARTMENTS TO ALUNO WITH GRANT OPTION;
+GRANT SELECT ON HR.EMPLOYEES TO ALUNO WITH GRANT OPTION;
+GRANT SELECT ON HR.JOB_HISTORY TO ALUNO WITH GRANT OPTION;
+GRANT SELECT ON HR.JOBS TO ALUNO WITH GRANT OPTION;
+GRANT SELECT ON HR.LOCATIONS TO ALUNO WITH GRANT OPTION;
+GRANT SELECT ON HR.REGIONS TO ALUNO WITH GRANT OPTION;
+
+-- EXEMPLO OPERADOR IGUAL =
+SELECT * FROM HR.EMPLOYEES A
+WHERE A.JOB_ID = 'IT_PROG';
+
+-- EXEMPLO OPERADOR IGUAL =
+SELECT * FROM HR.EMPLOYEES A
+WHERE A.SALARY = '9000';
+
+-- EXEMPLO OPERADOR MAIOR >
+SELECT * FROM HR.EMPLOYEES A
+WHERE A.HIRE_DATE > '03/02/2006'
+ORDER BY A.HIRE_DATE ASC;
+
+-- EXEMPLO OPERADOR MAIOR >
+
+SELECT * FROM HR.EMPLOYEES A 
+WHERE A.SALARY > '9000'
+ORDE BY A.SALARY ASC;
+
+-- EXEMPLO OPERADOR MENOR < 
+
+SELECT * FROM HR.EMPLOYEES A
+WHERE A.HIRE_DATE < '03/02/2006'
+ORDER BY A.HIRE_DATE ASC;
+
+
+-- EXEMPLO OPERADOR MAIOR IGUAL >=
+
+
+
+=================================================================================================================================================
+
+AULA 19 - OPERADORES MATEMÁTICOS 
+
+=================================================================================================================================================
+
+	+ ADIÇÃO
+	- SUBTRAÇÃO
+	* MULTIPLICAÇÃO
+	/ DIVISÃO
+	% MÓDULO -> RETORNA O RESTO INTEIRO DE UMA DIVISÃO
+
+=================================================================================================================================================
+
+AULA 20 - OPERADORES LÓGICOS/FILTROS
+
+=================================================================================================================================================
+
+WHERE - usada para extrair somente os registros/linhas que estiverem dentro das especificações da condição 
+AND - TRUE se as duas expressões booleanas forem TRUE
+BETWEEN - TRUE se o operando estiver dentro de um intervalo 
+IN - TRUE se o operando for igual a um de uma lista de expressões 
+LIKE - TRUE se o operando corresponder a um padrão
+NOT - inverte o valor de qualquer outro operador booleano
+OR - TRUE se qualquer expressão booleana for TRUE 
+IS NULL - TRUE se o o valor for NULO
+IS NOT NULL - TRUE se o valor não for NULO
+HAVING - A cláusula HAVING foi adicionada ao SQL porque a palavra-chave WHERE não pôde ser usada com funções agregadas
+
+
+CREATE TABLE senso 
+(
+ano INT NOT NULL,
+cod_uf CHAR(2) NOT NULL,
+estado VARCHAR(50) NOT NULL,
+cod_mun CHAR(7) NOT NULL,
+nome_mun varchar(50) NOT NULL,
+regiao VARCHAR(150) NOT NULL,
+pib DECIMAL(12,3) NOT NULL,
+populacao INTEGER NOT NULL
+);
+
+=================================================================================================================================================
+
+AULA 22 - STATMENT LANGUAGE
+
+=================================================================================================================================================
+
+DML - Data Manipulation Language
+	SELECT - retornar dados do banco de dados
+	INSERT - inserir dados em uma tabela
+	UPDATE - atualiza dados existentes em uma tabela
+	DELETE - exclui registros de uma tabela
+DDL - Data Definition Language
+	CREATE - para criar objetos no BD, o próprio BD, tabelas, indexes, procedures, views, functions, triggers
+	ALTER - altera a estrutura do BD, o próprio BD, tabelas, indexes
+	DROP - apaga objeto do BD, próprio BD, tabelas, indexes, procedures, views, triggers, e functions
+	TRUNCATE - remove todos os registros de uma tabela, incluindo todos os espaços alocados para registros 
+DCL - Data Control Language
+	GRANT - atribui privilégios de acesso do usuário a objetos do BD
+	REVOKE - remove privilégios de acesso do usuário a objetos do BD obtidos através do comando GRANT
+TCL - Transaction Control Language                
+	START TRANSACTION - 
+	COMMIT - salvar o trabahlo feito
+	SAVEPOINT - identificar um ponto em uma transação para que mais tarde possa efetua um ROLLBACK
+	ROLLBACK - restaura BD ao original desde último COMMIT
+
+=================================================================================================================================================
+
+AULA 24 - DDL
+
+=================================================================================================================================================
+
+CREATE TABLE 
+CREATE SEQUENCE 
+CREATE INDEX
+
+ALTER TABLE FUNCIONARIO ADD GENERO CHAR(1); -- adicionar campo
+
+ALTER TABLE FUNCIONARIO RENAME COLUMN GENERO TO SEXO; --renomear coluna
+
+ALTER TABLE FUNCIONARIO MODIFY SEXO VARCHAR2(1); --modificar tipo da coluna 
+
+ALTER TABLE FUNCIONARIO RENAME TO PESSOA; -- renomear a tabela
+
+ALTER TABLE PESSOA RENAME TO FUNCIONARIO; 
+
+ALTER TABLE SENSO ADD ID INT; 
+
+ALTER TABLE SENSO DROP COLUMN ID; --remover a coluna
+
+ALTER TABLE FUNCIONARIO MODIFY ENDERECO VARCHAR2(30);
+
+CREATE DATABASE TESTE; -- criar um banco de dados
+
+DROP DATABASE TESTE; -- remover um banco de dados
+
+DROP TABLE SALARIO;
+
+CREATE VIEW V_FUNCIONARIO
+ AS SELECT * FROM FUNCIONARIOS;
+
+CREATE OR REPLACE VIEW V_FUNCIONARIO
+AS SELECT ID, NOME FROM FUNCIONARIOS;
+
+DROP  VIEW V_FUNCIONARIO;
+
+CREATE OR REPLACE PROCEDURE PROC_QUADRADO (V_MUM1 NUMBER)
+IS 
+V_MUM2 NUMBER
+BEGIN 
+	V_MUM2 := V_MUM1 * V_MUM1;
+	DBMS_OUTPUT.PUT_LINE('Retorno: ' || v_mum2);
+END;
+
+--CALL PROCEDURE 
+
+BEGIN 
+	POC_QUADRADO(V_MUM1 => 2)
+END;
+
+OU
+
+SET SERVEROUTPUT ON;
+EXECUTE PROC_QUADRADO(7);
+
+DROP PROCEDURE PROC_QUADRADO;
+
+CREATE GLOBAL TEMPORARY TABLE TMP_FUNCIONARIOS -- uma tabela tempoária só armazena os dados no tempo de uma próxima transação
+(
+	ID INT,
+	NOME VARCHAR2(50),
+	SALARIO DECIMAL(10, 2),
+	SETOR VARCHAR2(30)
+);
+
+=================================================================================================================================================
+
+AULA 26 - DCL GRANT
+
+=================================================================================================================================================
+
+
+GRANT UPDATE ON ALUNO.FUNCIONARIOS TO ALUNO;
+
+GRANT CREATE SESSION, CREATE TABLE, CREATE VIEW TO ALUNO WITH ADMIN OPTION;
+
+GRANT SELECT, UPDATE ON ALUNO.SENSO TO ALUNO;
+
+GRANT INSERT, DELETE ON ALUNO.SENSO TO ALUNO;
+
+GRANT CREATE PROCEDURE, CREATE VIEW TO ALUNO;
+
+SELECT 'GRANT ALL ON ' || object_name || ' TO ALUNO;' AS RETONO
+	FROM USER_OBJECTS;
+
+
+=================================================================================================================================================
+
+AULA 26 - DCL REVOKE
+
+=================================================================================================================================================
+
+REVOKE CREATE VIEW, CREATE PROCEDURE, CREATE SESSION, CREATE TABLE FROM ALUNO;
+
+REVOKE RESOURCE FROM ALUNO;
+
+REVOKE UPDATE ON HELP FROM ALUNO;
+
+=================================================================================================================================================
+
+AULA 28 - TCL
+
+=================================================================================================================================================
+
+
+CREATE TABLE CADASTRO 
+(
+	NOME VARCHAR2(50) NOT NULL,
+	NRO_DCTOVARCHAR2(20) NOT NULL
+);
+
+INSERT INTO CADASTRO VALUES ('Andre', '1234567');
+INSERT INTO CADASTRO VALUES ('Joao', '9876541');
+INSERT INTO CADASTRO VALUES ('Bruno', '1111111111');
+
+ROLBACK;
+
+COMMIT;
+
+INSERT INTO CADASTRO VALUES ('Andre', '1234567');
+SAVEPOINT P1;
+INSERT INTO CADASTRO VALUES ('Joao', '9876541');
+SAVEPOINT P2;
+INSERT INTO CADASTRO VALUES ('Bruno', '1111111111');
+SAVEPOINT P3;
+
+ROLLBACK TO SAVEPOINT P2;
+
+COMMIT;
+
+=================================================================================================================================================
+
+AULA 29 - OPERADOR UNION / UNION ALL
+
+=================================================================================================================================================
+
+Operador UNION é usado para combinar o conjunto de resultados de duas ou mais instruções SELECT 
+É necessário que cada select dentro do union possua o mesmo número de colunas e do mesmo tipo
+As colunas também devem ser tipos de dados semelhantes 
+As colunas em cada instrução select deve estar na mesma ordem 
+O operador UNION seleciona apenas valores distintos por padrão (realiza um DISTINCT)
+Para permitir valores duplicados é necessário o UNION ALL
+
+
+
+=================================================================================================================================================
+
+AULA 30 - JOINS
+
+=================================================================================================================================================
+
+
+Esta clausula é suada para combinar as linhas de duas ou mais tabelas baseado no relacionamento entre elas.
+
+Aqui estão os diferentes tipos de JOINS em SQL:
+
+  * INNER JOIN: Retorna os registros que têm valores correspondentes em ambas as tabelas
+  * LEFT JOIN: Retorna todos os registros da tabela à esquerda e os registros correspondentes da tabela da direita  
+  * RIGHT JOIN: Retorna todos os registros da tabela à diretia e os registros correspondentes da tabela da esquerda  
+  * FULL OUTER JOIN: retorna todos os registros quando houver uma correspondência na tabela à esquerda ou à direita
+
+*************************************************************************************************************************************************  
+/// Consulta para verificar todas as tabelas
+
+SELECT OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH
+FROM all_tab_columns
+
+
+*************************************************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
