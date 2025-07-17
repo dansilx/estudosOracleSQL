@@ -828,7 +828,7 @@ AULA 61 - LOOP WHILE
 	  END LOOP;
 
 
-	A palavra "condition", que no caso é a condição que será testada a cada iteraão do loop. 
+	A palavra "condition", que no caso é a condição que será testada a cada iteração do loop. 
 	Caso essa condição seja avaliada como TRUE, o corpo do loop será executado; caso esta 
 	condição seja FALSE, o loop será então encerrado.
 	
@@ -836,6 +836,201 @@ AULA 61 - LOOP WHILE
 	Como podemos perceber, a condição é realizada antes de entrarmos no loop, o que, em caso de ser	
 	FALSE, o código pode não ser executado nenhuma vez.
 
+
+=================================================================================================================================================
+
+AULA 63 - EXCEÇÕES
+
+=================================================================================================================================================	
+ 
+	Geralmente, quando um erro ocorre, o processamento do bloco PLSQL é imediatamente encerrado.
+	O processamento corrente não é concluído. O oracle permite que você esteja preparado para esses 
+	erros e implemente lógica nos programas para lidar com os erros.
+	
+	Existem 3 tipos de exceções:
+	* Erros Predefinidos da Oracle;
+	* Erros não definidos da Orace;
+	* Erros definidos pelo usuário.
+
+	ERROS PREDEFINIDOS PELO ORACLE:
+	
+	* no_data_found - o SELECT de linha única não retornou dados;
+	* too_many_rows - o SELECT de linha única retornou mais de uma linha;
+	* invalid_cursor - Houve a tentativa de operação ilegal de cursor;
+	* value_error - Ocorreu um erro de aritmética, conversão, truncagem ou restrição;
+	* invalid_number - A conversão de uma string para um número, falhou;
+	* zero_divide - Ocorreu uma tentativa de dividir por zero;
+	* dup_val_on_index - Houve uma tentativa de inserir, em duplicata, um valor em 
+	  uma coluna (ou conjunto de colunas) que possui um índice exclusivo;
+	* cursor_already_open - Houve uma tentativa de abrir um curso que foi aberto anteriormente;
+	* not_logged_on - Uma chamada de banco de dados foi feita sem o usuário estar conectado ao Oracle;
+	* transaction_backed_out - Uma parte remota de uma transação teve "rollback";
+	* login_denied - um login do banco de dados Oracle falhou po causa de um nome de usuário e/ou senha inválidos;
+	* program_error - O PLSQL encontrou um problema interno;
+	* storage_error - O PLSQL ficou sem memória ou a memória está corrompida;
+	* timeout_on_resouce - Um timeout ocorreu enquanto o Oracle estava esperando por um Recurso;
+	* rowtype_mismatch - Uma variável de cursor não é incompatível com a linha de cursor;
+	* Others - Uma declaração catchall que detecta um erro que não foi detectado nas exceções anteriores
+
+	ERROS INDEFINIDOS DA ORACLE:
+	
+	Conseguimos capturar erros não definidos pelo servidor Oracle declarando-os primeiro ou usando o manipulador OTHERS.
+	A exceção declarada é invocada implicitamente. No PLSQL, o PRAGMA EXCEPTION_INIT() "diz" para o compilador para 
+	associar uma exceção com um número de erro Oracle. Isto permite referenciar em qualquer exceção interna pelo nome
+	e escrever um manipulador específico para isto.
+	
+	*IMPORTANTE*: PRAGMA é uma palavra reservada e uma diretiva de compilação que não é processada quando um bloco 
+	é executado. Ele direciona o compilador do PLSQL para interpretar todas ocorrências de nomes de exceção dentro 
+	de um bloco como número de erro do servidor Oracle.
+
+	
+	ERROS DEFINIDOS PELO USUÁRIO
+	
+	Um usuário pode levantar explicitamente uma exceção usando o comando RAISE. Esse procedimento deve ser usado apenas quando 
+	o Oracle não levanta sua própria exceção ou quando o processamento não é desejado ou é impossível de ser completado.
+	
+	As etapas para levantar e tratar um erro definido pelo usuário, são os seguintes: 
+	
+	1. Declarar o nome para a exceção de usuário dentro da seção de declaração do bloco;
+	
+	2. Levantar a exceção explicitamente dentro da parte executável do bloco, usando o comando RAISE;
+	
+	3. Referenciar a exceção declarada com uma rotina de tratamento de erro.
+
+
+	SQLCODE e SQLERRM:
+
+	* SQLCODE: Retorna um valor numérico para o código de erro;
+	* SQLERRM: Retorna um caractere contendo a mensagem associada com o número do erro.
+
+	
+=================================================================================================================================================
+
+AULA 65 - CURSORES
+
+=================================================================================================================================================	
+ 	
+	Os cursores PLSQL fornecem um modo pelo qual seu programa pode selecionar várias linhas de dados de Banco 
+	de Dados e depois processar cada linha individualmente. Especificamente, um cursor é um nome atribuído pela 
+	Oracle para cada declaração SQL que é processada. Esse nome fornece à Oracle um meio de orientar e controlar 
+	todas as fases do processamento do SQL.
+	
+	* Conceitos Básicos:
+ 	
+	- Existem dois tipos de cursores:
+		
+		* Cursor Implícito - são cursores delcarados pelo PLSQL implicitamente para todos comandos DML e comandos
+			             SELECT no PLSQL, independente da quantidade de registros processados. Ele precisa fazer
+				     isso para gerenciar o processamento da declaração SQL.
+	
+
+		* Cursor Explícito - Cursores definidos pelo usuário para manipular registros recuperados por declarações SELECT.  
+	
+	CICLO DE VIDA DO CURSOR:
+
+	1. Declare o cursor nomeando o mesmo e defina a estrutura da consulta que será realizada por ele;
+	
+	2. Através do comando OPEN, o cursor é aberto e executa a consulta que recuperará o conjunto ativo do banco de dados;
+	
+	3. Com o comando FETCH, capturamos os dados do registro corrente que utilizarmos em nosso programa. A cada comando FETCH, 
+	   devemos testar se ainda existe registro no cursor e abandonar o LOOP do cursor através do comando EXIT, caso não exista
+	   (mais adiante veremos como verificar isso);
+	
+	4. Quando a manipulação dos dados do cursor for finalizada, ao abandonar o LOOP do cursor, devemos fecha-los através o comando CLOSE,
+	   que libera as linhas do cursor;
+
+	
+	ATRIBUTOS DE CURSORES EXPLÍCITOS 
+	
+	* %rowcount - Mostra o núemro de linhas do cursor;
+	* %found - retorna TRUE se o mais recente FETCH retornar uma linha;
+	* %notfound - retorna TRUE se o mais recente FETCH não retornar uma linha;
+ 	* %isopen - retorna TRUE se o cursor estiver aberto
+	
+	CURSORES EXPLÍCITOS AUTOMATIZADOS (LOOP Cursor FOR)
+	
+	Os LOOPs Cursor FOR são ideais quando você quer fazer o LOOP em todos os registros retornados pelo cursor.
+	
+	Com o LOOP Cursor FOR não se deve delcarar o registro que controla o LOOP. Da mesma forma, não se deve usá-lo 
+	quando as operações do cursor precisarem ser tratadas manualmente.
+	
+	O LOOP Cursor FOR realiza as seguintes ações implicitamente:
+		
+	1. Declara o índice do LOOP;
+	2. Abre o Cursor;
+	3. Faz o FETCH da linha seguinte a partir do cursor para cada iteração do LOOP;
+	4. Fecha o cursor quando todas as linahs são processadas ou quando o LOOP é encerrado.
+
+	O LOOP Cursor FOR processa linhas em um cursor explícito. Isto é uma facilidade por que o cursor é aberto,
+	linhas são carregadas em cada iteração do LOOP, o LOOP é finalizado quando a última linha é processada e o
+	cursor é fechado, automaticamente.
+
+	 
+=================================================================================================================================================
+
+AULA 72 - FUNÇÕES
+
+=================================================================================================================================================	
+
+	Uma function é um bloco PLSQL semelhante a procedure, com a diferença de que functios retornam valores, 
+	(procedures podem ou não retornar valores) tendo como características: 
+
+	* Functions sempre retornam valores;
+	* Functions são usadas como parte de uma expressão;
+
+	Estrutura da Function: 
+	
+	CREATE OR REPLACE FUNCTION function_name (parameter_name [IN | OUT | IN OUT] type)
+		RETURN return_data_type
+		[IS | AS]
+		BEGIN
+			< function_body >
+
+		END function_name;
+
+	
+	ESTRUTURA FUNCTION EXPLICADA:
+ 	
+	* CREATE OR REPLACE FUNCTION - Caso uma function já exista com o mesmo nome ela será reescrita devido ao termo replace; 
+	* function_name - será o nome atribuído para essa função;
+	* parameters - a lista opcional de parâmetros contém os nomes, os modos e os tipos que esses parâmetros terão. O IN 
+		       representa o valor que será passado de fora, já OUT representa que este parâmetro será utilizado para 
+		       retornar um valor de fora do procedimento;
+	* RETURN data_type - é o tipo de retorno que será utilizado, sendo este SQL ou PLSQL . Podemos neste caso utilizar
+			     referências como o %TYPE ou %ROWTYPE se necessário, ou mesmo utilizar qualquer tipo de dados escalar 
+		             ou composto;
+	* IS/AS - por convenção, temos o IS para a criação de funções armazenadas e o AS quando criamos pacotes (packages);
+	* function_body - contém o bloco PLSQL que inicia com a cláusula BEGIN e finaliza com END [function_name], e executa neste 
+			  momento todas as instruções necessárias.
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
 
 
 
