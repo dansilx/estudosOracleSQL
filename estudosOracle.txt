@@ -1129,14 +1129,3 @@ AULA 89 - PACKAGES
 	Package PLSQL é um subgrupo de funções relacionadas, procedimentos, tipos, cursores dentre outros. Os packages são como uma biblioteca
 	pois uma vez escrito é armazenado no banco de dados Oracle e pode ser usado por muitas aplicações.
 
-
-
-
-
-
-
-  
-
-
-
-
